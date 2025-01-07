@@ -13,11 +13,14 @@
     - [ ] NO - Not Yet
 
 
-3. Please provide a link to the repository you are using for this class.:
+3. Please provide a link to the repository you are using for this class.
+
 https://github.com/brandonshrt/CS283/tree/main
 
 4. Briefly describe what you want to get out of this class.
-I hope to gain a deeper understanding about how computer systems work to have a more clear vision when interacting with computers and writing code.:
 
-5. Briefly describe any concerns you might be having with being successful in this class (if any).:
+I hope to gain a deeper understanding about how computer systems work to have a more clear vision when interacting with computers and writing code.
+
+5. Briefly describe any concerns you might be having with being successful in this class (if any).
+
 I do not have any concerns.
