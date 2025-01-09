@@ -66,15 +66,15 @@ int count_words(char *buff, int len, int str_len){
     int count = 0;
     int i = 0;
     
-    while (*buff != '\0')
+    while (buff[i] != '.')
     {
-        if (buff[i] != ' ')
+
+        while ((buff[i] >= 'A' && buff[i] <= 'Z') || (buff[i] >= 'a' && buff[i] <= 'z'))
         {
-            while (buff[i+1] != ' ' || buff[i+1] != '\0')
-            {
-                
-            }
+            i++; 
         }
+        count++;
+        i++;
     }
 
     return count;
