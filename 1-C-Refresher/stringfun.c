@@ -13,11 +13,18 @@ int  setup_buff(char *, char *, int);
 //prototypes for functions to handle required functionality
 int  count_words(char *, int, int);
 //add additional prototypes here
-int reverseString();
-int wordsAndLengths();
+int reverseString(char *, int);
+int wordsPrint(char *, int);
+int isStrTooLong(char *, int);
 
 int setup_buff(char *buff, char *user_str, int len){
     //TODO: #4:  Implement the setup buff as per the directions
+    if (isStrTooLong(user_str, len)) // If the string is too long, return -1
+    {
+        return -1;
+    }
+
+    
     int j = 0;
     //printf("%s\n", user_str);
 
@@ -33,14 +40,13 @@ int setup_buff(char *buff, char *user_str, int len){
     //printf("%d, %d", j, len);
     for (int i = j; i < len; i++)
     {
-        printf("%d, %d\n", i, len);
         buff[i] = '.';
     }
 
     buff[len] = '\0';
 
     //printf("%s\n", buff);
-    return 0; //for now just so the code compiles. 
+    return j; //for now just so the code compiles. 
 }
 
 void print_buff(char *buff, int len){
@@ -58,18 +64,12 @@ void usage(char *exename){
 
 int count_words(char *buff, int len, int str_len){
     //YOU MUST IMPLEMENT
-    if (str_len > len)
-    {
-        return -1;
-    }
-
     int count = 0;
     int i = 0;
     
-    while (buff[i] != '.')
+    while (*(buff + i) != '.')
     {
-
-        while ((buff[i] >= 'A' && buff[i] <= 'Z') || (buff[i] >= 'a' && buff[i] <= 'z'))
+        while ((*(buff + i) >= 'A' && *(buff + i) <= 'Z') || (*(buff + i) >= 'a' && *(buff + i) <= 'z'))
         {
             i++; 
         }
@@ -81,9 +81,41 @@ int count_words(char *buff, int len, int str_len){
 }
 
 //ADD OTHER HELPER FUNCTIONS HERE FOR OTHER REQUIRED PROGRAM OPTIONS
-int reverseString(char *buff, int len, int str_len)
+int reverseString(char *buff, int str_len)
 {
+    char temp;
+    int first = 0;
+    int last = str_len-1;
+
+    while (first < last)
+    {
+        temp = *(buff + first);
+        *(buff + first) = *(buff + last);
+        *(buff + last) = temp;
+        first++;
+        last--;  
+    }
+    
+     printf("Reversed String: ");
+    for (int i = 0; i < str_len; i++)
+    {
+        printf("%c", *(buff + i));
+    }
+    printf("\n");
+        
     return 0;
+}
+
+
+int isStrTooLong(char* str, int max) // Helper function to get string len for setup_buffer()
+{
+    int count = 0;
+    while (*(str + count) != '\0')
+    {
+        count++;
+    }
+
+    return count >= max; // Return 1 (true) if longer, else return 0;
 }
 
 int main(int argc, char *argv[]){
@@ -154,10 +186,11 @@ int main(int argc, char *argv[]){
         //TODO:  #5 Implement the other cases for 'r' and 'w' by extending
         //       the case statement options
         case 'r':
-            rc = reverseString(buff, BUFFER_SZ, user_str_len);
+            rc = reverseString(buff, user_str_len);
             break;
 
         case 'w':
+            rc = wordPrint(buff, user_str_len);
             break;
 
         default:
