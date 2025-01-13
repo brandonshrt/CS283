@@ -14,7 +14,7 @@ int  setup_buff(char *, char *, int);
 int  count_words(char *, int, int);
 //add additional prototypes here
 int reverseString(char *, int);
-int wordsPrint(char *, int);
+int wordPrint(char *);
 int isStrTooLong(char *, int);
 
 int setup_buff(char *buff, char *user_str, int len){
@@ -106,6 +106,32 @@ int reverseString(char *buff, int str_len)
     return 0;
 }
 
+int wordPrint(char *buff)
+{
+    int wordCount = 0;
+    int i = 0;
+    int wordLen = 0;
+
+    printf("Word Print\n----------\n");
+
+    while (*(buff + i) != '.')
+    {
+        printf("%d. ", wordCount + 1);
+        while ((*(buff + i) >= 'A' && *(buff + i) <= 'Z') || (*(buff + i) >= 'a' && *(buff + i) <= 'z'))
+        {
+            printf("%c", *(buff + i));
+            wordLen++;
+            i++; 
+        }
+        printf(" (%d)\n", wordLen);
+
+        wordLen = 0;
+        wordCount++;
+        i++;
+    }
+
+    return 0;
+}
 
 int isStrTooLong(char* str, int max) // Helper function to get string len for setup_buffer()
 {
@@ -190,7 +216,7 @@ int main(int argc, char *argv[]){
             break;
 
         case 'w':
-            rc = wordPrint(buff, user_str_len);
+            rc = wordPrint(buff);
             break;
 
         default:
