@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/brandonshort/Desktop/CS283/CS283/1-C-Refresher",
+      "program": "/Users/brandonshort/Desktop/CS283/CS283/1-C-Refresher/build/Debug/outDebug"
+    }
+  ]
+}
