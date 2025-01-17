@@ -26,6 +26,8 @@ int setup_buff(char *buff, char *user_str, int len){
         user_str++;
     }
 
+    // Until the end of the user's string, if there are multiple spaces,
+    // don't add those extra spaces to the buff
     while (*user_str != '\0')
     {
         while (*user_str == ' ' && *(user_str + 1) == ' ')
@@ -46,15 +48,14 @@ int setup_buff(char *buff, char *user_str, int len){
         j--;
     }
     
-    //printf("%d, %d", j, len);
+    // Fill the rest of the buffer with dots
     for (int i = j; i < len; i++)
     {
-        buff[i] = '.';
+        *(buff + i) = '.';
     }
 
-    buff[len] = '\0';
+    *(buff + len) = '\0';
 
-    //printf("%s\n", buff);
     return j; //for now just so the code compiles. 
 }
 
@@ -77,6 +78,7 @@ int count_words(char *buff){
     int count = 0;
     int i = 0;
     
+    // While we aren't at the end of the string in the buffer, iterate through the word and increment count when we reach the end of the word
     while (*(buff + i) != '.')
     {
         while ((*(buff + i) >= 'A' && *(buff + i) <= 'Z') || (*(buff + i) >= 'a' && *(buff + i) <= 'z'))
@@ -97,6 +99,7 @@ int reverseString(char *buff, int str_len)
     int first = 0;
     int last = str_len-1;
 
+    // Two pointer approach, swapping characters
     while (first < last)
     {
         temp = *(buff + first);
@@ -117,6 +120,7 @@ int wordPrint(char *buff)
 
     printf("Word Print\n----------\n");
 
+    // Same implementation as count_words, but printing the words and their lengths in a formatted way.
     while (*(buff + i) != '.')
     {
         printf("%d. ", wordCount + 1);
