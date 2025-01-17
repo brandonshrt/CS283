@@ -11,22 +11,20 @@ void print_buff(char *, int);
 int  setup_buff(char *, char *, int);
 
 //prototypes for functions to handle required functionality
-int  count_words(char *, int, int);
+int  count_words(char *);
 //add additional prototypes here
-int reverseString(char *, int, int);
-int wordPrint(char *, int, int);
+int reverseString(char *, int);
+int wordPrint(char *);
 int isStrTooLong(char *, int);
 
 int setup_buff(char *buff, char *user_str, int len){
     //TODO: #4:  Implement the setup buff as per the directions
-    if (isStrTooLong(user_str, len)) // If the string is too long, return -1
-    {
-        return -1;
-    }
-
-    
     int j = 0;
-    //printf("%s\n", user_str);
+
+    while (*user_str == ' ') // Skip the white spaces in the beginning
+    {
+        user_str++;
+    }
 
     while (*user_str != '\0')
     {
@@ -34,7 +32,18 @@ int setup_buff(char *buff, char *user_str, int len){
         {
             user_str++;
         }
-        buff[j++] = *user_str++;
+        *(buff + j++) = *user_str++;
+    }
+
+    if (isStrTooLong(buff, len)) // If the string is too long, return -1
+    {
+        return -1;
+    }
+
+    // Remove the last trailing space if there is one
+    if (j > 0 && *(buff + (j-1)) == ' ')
+    {
+        j--;
     }
     
     //printf("%d, %d", j, len);
@@ -50,10 +59,11 @@ int setup_buff(char *buff, char *user_str, int len){
 }
 
 void print_buff(char *buff, int len){
-    printf("Buffer:  ");
+    printf("Buffer:  [");
     for (int i=0; i<len; i++){
         putchar(*(buff+i));
     }
+    printf("]");
     putchar('\n');
 }
 
@@ -62,13 +72,8 @@ void usage(char *exename){
 
 }
 
-int count_words(char *buff, int len, int str_len){
+int count_words(char *buff){
     //YOU MUST IMPLEMENT
-    if (str_len > len)
-    {
-        return -1;
-    }
-
     int count = 0;
     int i = 0;
     
@@ -86,13 +91,8 @@ int count_words(char *buff, int len, int str_len){
 }
 
 //ADD OTHER HELPER FUNCTIONS HERE FOR OTHER REQUIRED PROGRAM OPTIONS
-int reverseString(char *buff, int len, int str_len)
+int reverseString(char *buff, int str_len)
 {
-    if (str_len > len)
-    {
-        return -1;
-    }
-
     char temp;
     int first = 0;
     int last = str_len-1;
@@ -105,24 +105,12 @@ int reverseString(char *buff, int len, int str_len)
         first++;
         last--;  
     }
-    
-     printf("Reversed String: ");
-    for (int i = 0; i < str_len; i++)
-    {
-        printf("%c", *(buff + i));
-    }
-    printf("\n");
         
     return 0;
 }
 
-int wordPrint(char *buff, int len, int str_len)
+int wordPrint(char *buff)
 {
-    if (str_len > len)
-    {
-        return -1;
-    }
-
     int wordCount = 0;
     int i = 0;
     int wordLen = 0;
@@ -138,13 +126,14 @@ int wordPrint(char *buff, int len, int str_len)
             wordLen++;
             i++; 
         }
-        printf(" (%d)\n", wordLen);
+        printf("(%d)\n", wordLen);
 
         wordLen = 0;
         wordCount++;
         i++;
     }
 
+    printf("\nNumber of words returned: %d\n", wordCount);
     return 0;
 }
 
@@ -156,7 +145,7 @@ int isStrTooLong(char* str, int max) // Helper function to get string len for se
         count++;
     }
 
-    return count >= max; // Return 1 (true) if longer, else return 0;
+    return count > max; // Return 1 (true) if longer, else return 0;
 }
 
 int main(int argc, char *argv[]){
@@ -216,7 +205,7 @@ int main(int argc, char *argv[]){
 
     switch (opt){
         case 'c':
-            rc = count_words(buff, BUFFER_SZ, user_str_len);  //you need to implement
+            rc = count_words(buff);  //you need to implement
             if (rc < 0){
                 printf("Error counting words, rc = %d", rc);
                 exit(2);
@@ -227,11 +216,11 @@ int main(int argc, char *argv[]){
         //TODO:  #5 Implement the other cases for 'r' and 'w' by extending
         //       the case statement options
         case 'r':
-            rc = reverseString(buff, BUFFER_SZ, user_str_len);
+            rc = reverseString(buff, user_str_len);
             break;
 
         case 'w':
-            rc = wordPrint(buff, BUFFER_SZ, user_str_len);
+            rc = wordPrint(buff);
             break;
 
         default:
