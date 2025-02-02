@@ -61,16 +61,19 @@ int open_db(char *dbFile, bool should_truncate){
 int get_student(int fd, int id, student_t *s){
     off_t offset = id * STUDENT_RECORD_SIZE;
 
+    // Go to location of student
     if (lseek(fd, offset, SEEK_SET) == -1)
     {
         return SRCH_NOT_FOUND;
     }
 
+    // Read what is at the location
     if (read(fd, s, STUDENT_RECORD_SIZE) != STUDENT_RECORD_SIZE)
     {
         return ERR_DB_FILE;
     }
 
+    // Check if the id is 0
     if (s->id == 0)
     {
         return SRCH_NOT_FOUND;
@@ -110,7 +113,7 @@ int add_student(int fd, int id, char *fname, char *lname, int gpa){
     student.id = id;
     strcpy(student.fname, fname);
     strcpy(student.lname, lname);
-    //printf("%d\n", student.gpa);
+    
     // Loop through the file to check for duplicates
     student_t existingStudent = {0};
     off_t offset = 0;
@@ -192,6 +195,7 @@ int del_student(int fd, int id){
         return ERR_DB_FILE;
     }
 
+    // Write the empty record in to the existing students spot
     if (write(fd, &EMPTY_STUDENT_RECORD, STUDENT_RECORD_SIZE) != STUDENT_RECORD_SIZE)
     {
         printf(M_ERR_DB_READ);
@@ -235,7 +239,7 @@ int count_db_records(int fd){
 
     // Start reading the file from the beginning
 
-    
+    // Loop until the end of the file
     while ((bytesRead = pread(fd, &record, STUDENT_RECORD_SIZE, offset)) != 0) 
     {
         //printf("%d", count);
@@ -302,19 +306,23 @@ int print_db(int fd){
     student_t student;
     int printHeader = 0;
 
+    // Loop until the end of the file
     while (read(fd, &student, STUDENT_RECORD_SIZE) > 0)
     {
-        if (read(fd, &student, STUDENT_RECORD_SIZE) != STUDENT_RECORD_SIZE) {
+        if (read(fd, &student, STUDENT_RECORD_SIZE) != STUDENT_RECORD_SIZE) 
+        {
             printf(M_ERR_DB_READ); 
             return ERR_DB_FILE;
         }
 
-        if (memcmp(&student, &EMPTY_STUDENT_RECORD, STUDENT_RECORD_SIZE) == 0) {
+        if (memcmp(&student, &EMPTY_STUDENT_RECORD, STUDENT_RECORD_SIZE) == 0) 
+        {
             continue;  // Skip empty records
         }
 
         // Print the header if it hasn't been printed already
-        if (!printHeader) {
+        if (!printHeader) 
+        {
             printf(STUDENT_PRINT_HDR_STRING, "ID", "FIRST_NAME", "LAST_NAME", "GPA");
             printHeader = 1;
         }
@@ -325,7 +333,8 @@ int print_db(int fd){
     }
 
     // If there were no students, print the empty message
-    if (!printHeader) {
+    if (!printHeader) 
+    {
         printf(M_DB_EMPTY);
     }
 
