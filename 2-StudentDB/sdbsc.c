@@ -105,48 +105,42 @@ int get_student(int fd, int id, student_t *s){
  *            
  */
 int add_student(int fd, int id, char *fname, char *lname, int gpa){
-    student_t student;
+    student_t student = {0};
+    student.gpa = gpa;
     student.id = id;
     strcpy(student.fname, fname);
     strcpy(student.lname, lname);
-    student.gpa = gpa;
-    off_t offset = id * STUDENT_RECORD_SIZE;
+    //printf("%d\n", student.gpa);
+    // Loop through the file to check for duplicates
+    student_t existingStudent = {0};
+    off_t offset = 0;
+    while (read(fd, &existingStudent, STUDENT_RECORD_SIZE) == STUDENT_RECORD_SIZE)
+     {
+        // If a student with the same id is found, return an error
+        if (existingStudent.id == id) 
+        {
+            printf(M_ERR_DB_ADD_DUP, id);
+            return ERR_DB_OP;
+        }
+        offset += STUDENT_RECORD_SIZE;
+    }
 
     // Go to the location where the student will be added
+    offset = id * STUDENT_RECORD_SIZE;
     if (lseek(fd, offset, SEEK_SET) == -1) 
     {
         printf(M_ERR_DB_READ);
         return ERR_DB_FILE;
     }
-    
-    if (read(fd, &EMPTY_STUDENT_RECORD, STUDENT_RECORD_SIZE) != STUDENT_RECORD_SIZE) 
-    {
-        perror("Error");
-        printf(M_ERR_DB_READ); 
-        return ERR_DB_FILE;
-    }
 
-    // Check if the student exists at the location
-    if (memcmp(&student, &EMPTY_STUDENT_RECORD, STUDENT_RECORD_SIZE) != 0) 
-    {
-        printf(M_ERR_DB_ADD_DUP);
-        return ERR_DB_OP;
-    }
-
-    // Write the student in the file at the position specified
-    if (lseek(fd, offset, SEEK_SET) == -1) 
+    // Write the new student at the determined position
+    if (write(fd, &student, STUDENT_RECORD_SIZE) < STUDENT_RECORD_SIZE) 
     {
         printf(M_ERR_DB_WRITE);
         return ERR_DB_FILE;
     }
 
-    if (write(fd, &student, STUDENT_RECORD_SIZE) != STUDENT_RECORD_SIZE) 
-    {
-        printf(M_ERR_DB_WRITE);
-        return ERR_DB_FILE;
-    }
-
-    printf(M_STD_ADDED);
+    printf(M_STD_ADDED, id);
     return NO_ERROR;
 }
 
@@ -179,7 +173,7 @@ int del_student(int fd, int id){
     // Check if get_student() returns errors or if the student is not found
     if (rc == SRCH_NOT_FOUND)
     {
-        printf(M_STD_NOT_FND_MSG);
+        printf(M_STD_NOT_FND_MSG, id);
         return ERR_DB_OP;
     } 
     else if (rc != NO_ERROR)
@@ -204,7 +198,7 @@ int del_student(int fd, int id){
         return ERR_DB_FILE;
     }
 
-    printf(M_STD_DEL_MSG);
+    printf(M_STD_DEL_MSG, id);
     return NO_ERROR;
 }
 
@@ -233,15 +227,18 @@ int del_student(int fd, int id){
  *            
  */
 int count_db_records(int fd){
-    student_t temp;
-    student_t record = {0};  // Current student record count
+    student_t temp = {0};
+    student_t record;  // Current student record count
     int count = 0;          
     ssize_t bytesRead;
+    off_t offset = 0;
 
     // Start reading the file from the beginning
-    off_t offset = 0;
-    while ((bytesRead = pread(fd, &record, STUDENT_RECORD_SIZE, offset)) > 0) 
+
+    
+    while ((bytesRead = pread(fd, &record, STUDENT_RECORD_SIZE, offset)) != 0) 
     {
+        //printf("%d", count);
         // Check if the record is empty
         if (memcmp(&record, &temp, STUDENT_RECORD_SIZE) != 0) 
         {
@@ -258,11 +255,11 @@ int count_db_records(int fd){
     }
 
     // Report the result
-    if (count > 0) 
+    if (count == 0) 
     {
-        printf(M_DB_RECORD_CNT, count); 
-    } else {
         printf(M_DB_EMPTY);  
+    } else {
+        printf(M_DB_RECORD_CNT, count); 
     }
 
     return count;
@@ -318,11 +315,11 @@ int print_db(int fd){
 
         // Print the header if it hasn't been printed already
         if (!printHeader) {
-            printf(STUDENT_PRINT_HDR_STRING, "ID", "FIRST NAME", "LAST_NAME", "GPA");
+            printf(STUDENT_PRINT_HDR_STRING, "ID", "FIRST_NAME", "LAST_NAME", "GPA");
             printHeader = 1;
         }
 
-        float realGPA = student.gpa / 100;
+        float realGPA = student.gpa / 100.0;
 
         printf(STUDENT_PRINT_FMT_STRING, student.id, student.fname, student.lname, realGPA);
     }
@@ -365,14 +362,15 @@ int print_db(int fd){
  */
 void print_student(student_t *s){
    // Check if student exists and ID isn't 0
-    if (s == NULL || s->id == 0) {
+    if (s == NULL || s->id == 0) 
+    {
         printf(M_ERR_STD_PRINT);
         return;
     }
 
     printf(STUDENT_PRINT_HDR_STRING, "ID", "FIRST NAME", "LAST_NAME", "GPA");
 
-    float realGPA = s->gpa / 100;
+    float realGPA = s->gpa / 100.0;
 
     printf(STUDENT_PRINT_FMT_STRING, s->id, s->fname, s->lname, realGPA);
 }
@@ -541,6 +539,7 @@ int main(int argc, char *argv[]){
             //they are valid numbers
             id = atoi(argv[2]);
             gpa = atoi(argv[5]);
+            //printf("%d", gpa);
 
             exit_code = validate_range(id,gpa);
             if (exit_code == EXIT_FAIL_ARGS){
