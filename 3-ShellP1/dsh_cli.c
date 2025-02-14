@@ -46,10 +46,11 @@
  */
 int main()
 {
-    char cmd_buff[ARG_MAX];
+    char *cmd_buff;
     int rc = 0;
     command_list_t clist;
 
+    cmd_buff = malloc(sizeof(char)*ARG_MAX);
     while (1)
     {
         printf("%s", SH_PROMPT);
